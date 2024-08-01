@@ -421,5 +421,3 @@ k run temp --image=nginx:alpine --rm -it --restart=Never -- curl http://demo-svc
 ```
 
 ### do a bit of refactoring with outputs and variables
-
-### end the video
