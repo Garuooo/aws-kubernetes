@@ -1,0 +1,288 @@
+- name: Basic Setup
+  hosts: all
+  gather_facts: false
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Wait 200 seconds for port 22 to become open and contain "OpenSSH"
+      ansible.builtin.wait_for:
+        port: 22
+        host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+        search_regex: OpenSSH
+        delay: 10
+        timeout: 200
+
+    - name: Disable strict host key checking (first-time setup only)
+      ansible.builtin.shell: echo "Host *\n\tStrictHostKeyChecking no\n" >> /etc/ssh/ssh_config
+      become: yes
+
+    - name: Ensure Python 3 is installed
+      ansible.builtin.raw: |
+        apt-get update
+        apt-get install -y python3
+      changed_when: false
+
+    - name: Set a hostname
+      ansible.builtin.hostname:
+        name: "{{ node_hostname }}"
+
+    - name: Copy /etc/hosts template
+      ansible.builtin.copy:
+        backup: true
+        src: ./files/hosts
+        dest: /tmp/hosts
+
+    - name: Insert/Update configuration using a local file and validate it
+      ansible.builtin.blockinfile:
+        block: "{{ lookup('file', './files/hosts') }}"
+        path: /etc/hosts
+        backup: yes
+
+    - name: Disable swap on all nodes
+      ansible.builtin.shell: swapoff -a
+
+    - name: kernel module prerequisites
+      ansible.builtin.shell:
+        cmd: |
+          cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+          overlay
+          br_netfilter
+          EOF
+
+    - name: add overlay module
+      community.general.modprobe:
+        name: overlay
+        state: present
+
+    - name: add br_netfilter module
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: sysctl params required by setup
+      ansible.builtin.shell:
+        cmd: |
+          cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+          net.bridge.bridge-nf-call-iptables  = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.ipv4.ip_forward                 = 1
+          EOF
+
+    - name: apply sysctl params without reboot
+      ansible.builtin.shell: sysctl --system
+
+    - name: create containerd config file
+      ansible.builtin.shell: mkdir -p /etc/containerd && touch /etc/containerd/config.toml
+
+    - name: Install containerd pre-reqs
+      ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+
+    - name: add docker GPG key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      ansible.builtin.apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install containerd.io
+      ansible.builtin.apt:
+        pkg:
+          - containerd.io
+
+    - name: Enable containerd
+      ansible.builtin.systemd:
+        name: containerd
+        daemon_reload: yes
+        state: started
+        enabled: yes
+
+    - name: Setup containerd to use systemd as cgroup
+      ansible.builtin.copy:
+        backup: true
+        src: ./files/containerd-config.toml
+        dest: /etc/containerd/config.toml
+
+    - name: Restart service cron, in all cases, also issue daemon-reload to pick up config changes
+      ansible.builtin.systemd:
+        state: restarted
+        daemon_reload: yes
+        name: containerd
+
+    ## NOTE: kubeadm stuff
+    - name: Create keyrings directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Ensure curl is installed
+      ansible.builtin.apt:
+        name: curl
+        state: present
+
+    - name: Check if URL is accessible
+      ansible.builtin.shell: |
+        curl -Is https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+      register: url_check
+      ignore_errors: true
+
+    - name: Debug URL accessibility
+      ansible.builtin.debug:
+        msg: "{{ url_check }}"
+
+    - name: Download Google Cloud's public key
+      ansible.builtin.shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      register: curl_output
+      ignore_errors: true
+
+    - name: Debug output of curl
+      ansible.builtin.debug:
+        msg: "{{ curl_output }}"
+
+    - name: Add Kubernetes repo
+      ansible.builtin.shell: |
+        echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+      register: repo_output
+      ignore_errors: true
+
+    - name: Debug output of adding repo
+      ansible.builtin.debug:
+        msg: "{{ repo_output }}"
+
+    - name: Update apt package index
+      ansible.builtin.shell: apt-get update
+      register: update_output
+      ignore_errors: true
+
+    - name: Debug output of apt-get update
+      ansible.builtin.debug:
+        msg: "{{ update_output }}"
+
+    - name: Install kubelet, kubeadm, kubectl
+      ansible.builtin.apt:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+      register: install_output
+      ignore_errors: true
+
+    - name: Debug output of installation
+      ansible.builtin.debug:
+        msg: "{{ install_output }}"
+
+    - name: Hold kubelet, kubeadm, kubectl packages
+      ansible.builtin.shell: apt-mark hold kubelet kubeadm kubectl
+      register: hold_output
+      ignore_errors: true
+
+    - name: Debug output of holding packages
+      ansible.builtin.debug:
+        msg: "{{ hold_output }}"
+
+- name: Setup Control Plane Node
+  hosts: master
+  become: true
+  tasks:
+    - name: init kubeadm
+      ansible.builtin.shell: sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --control-plane-endpoint "{{ansible_host}}:6443"
+
+    - name: create ~/.kube directory
+      ansible.builtin.file:
+        path: ~/.kube
+        state: directory
+        mode: "0755"
+
+    - name: copy kubeconfig file
+      shell: sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+    - name: set the correct permission on kubeconfig file
+      shell: sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+    - name: install flannel
+      ansible.builtin.shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/v0.20.2/Documentation/kube-flannel.yml
+
+    - name: Copy kubeconfig file locally
+      ansible.builtin.fetch:
+        src: $HOME/.kube/config
+        dest: /tmp/kubeconfig/
+        flat: yes
+
+    - name: Generate join token for worker nodes
+      ansible.builtin.shell: sudo kubeadm token create --print-join-command
+      register: join_node_token
+
+    - name: Save join command as variable
+      ansible.builtin.set_fact:
+        join_node: "{{ join_node_token.stdout_lines[0] }}"
+
+- name: Setup Worker Nodes
+  hosts: workers
+  become: true
+  tasks:
+    - name: add worker nodes to cluster
+      shell: "sudo {{ hostvars['control_plane'].join_node }}"
+
+- name: Deploy Nginx and Expose to Internet
+  hosts: master
+  become: true
+  tasks:
+    - name: Create Nginx deployment
+      ansible.builtin.shell: |
+        kubectl apply -f - <<EOF
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: nginx-deployment
+        spec:
+          replicas: 2
+          selector:
+            matchLabels:
+              app: nginx
+          template:
+            metadata:
+              labels:
+                app: nginx
+            spec:
+              containers:
+              - name: nginx
+                image: nginx:1.14.2
+                ports:
+                - containerPort: 80
+        EOF
+
+    - name: Expose Nginx deployment
+      ansible.builtin.shell: |
+        kubectl apply -f - <<EOF
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: nginx-service
+        spec:
+          type: NodePort
+          selector:
+            app: nginx
+          ports:
+            - protocol: TCP
+              port: 80
+              targetPort: 80
+              nodePort: 30007
+        EOF
