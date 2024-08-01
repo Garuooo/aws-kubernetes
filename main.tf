@@ -241,7 +241,7 @@ resource "aws_instance" "kubeadm_demo_control_plane" {
   ]
   root_block_device {
     volume_type = "gp2"
-    volume_size = 14
+    volume_size = 120
   }
 
   tags = {
@@ -268,7 +268,7 @@ resource "aws_instance" "kubeadm_demo_worker_nodes" {
   ]
   root_block_device {
     volume_type = "gp2"
-    volume_size = 8
+    volume_size = 120
   }
 
   tags = {
