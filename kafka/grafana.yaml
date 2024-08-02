@@ -54,21 +54,21 @@ metadata:
   labels:
     app: strimzi
 spec:
-  ports:
-  - name: grafana
-    port: 3000
-    targetPort: 3000
-    protocol: TCP
-  selector:
-    name: grafana
-  type: ClusterIP
-  # Uncomment the lines below to change the service type to NodePort
   # ports:
   # - name: grafana
   #   port: 3000
   #   targetPort: 3000
   #   protocol: TCP
-  #   nodePort: 32000 # Specify the NodePort here
   # selector:
   #   name: grafana
-  # type: NodePort # Change the service type to NodePort
+  # type: ClusterIP
+  # Uncomment the lines below to change the service type to NodePort
+  ports:
+  - name: grafana
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+    nodePort: 32000 # Specify the NodePort here
+  selector:
+    name: grafana
+  type: NodePort # Change the service type to NodePort
