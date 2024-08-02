@@ -17,7 +17,14 @@ spec:
         - name: kafka-ui
           image: provectuslabs/kafka-ui:latest
           ports:
-            - containerPort: 8080apiVersion: v1
+            - containerPort: 8080
+          env:
+            - name: KAFKA_CLUSTERS_0_NAME
+              value: "my-cluster"
+            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+              value: "my-cluster-kafka-bootstrap:9092"
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: kafka-ui
@@ -32,10 +39,3 @@ spec:
       nodePort: 30080
   selector:
     app: kafka-ui
-
-          env:
-            - name: KAFKA_CLUSTERS_0_NAME
-              value: "my-cluster"
-            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
-              value: "my-cluster-kafka-bootstrap:9092"
----
