@@ -22,10 +22,10 @@ spec:
       image: docker.io/mmm09/my-connect-cluster:latest
       pushSecret: dockerhub-secret
     plugins:
-      # - name: debezium-mysql
-      #   artifacts:
-      #     - type: jar
-      #       url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/1.9.7.Final/debezium-connector-mysql-1.9.7.Final-plugin.tar.gz
+      - name: debezium-sink-mysql-connector
+        artifacts:
+          - type: tgz
+            url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-jdbc/2.4.0.Final/debezium-connector-jdbc-2.4.0.Final-plugin.tar.gz
       - name: debezium-source-mysql-connector
         artifacts:
           - type: tgz
