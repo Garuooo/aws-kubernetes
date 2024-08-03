@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium-ui
+  template:
+    metadata:
+      labels:
+        app: debezium-ui
+    spec:
+      containers:
+      - name: debezium-ui
+        image: quay.io/debezium/debezium-ui:{debezium-version}
+        env:
+        - name: KAFKA_CONNECT_URIS
+          value: "http://connect:8083"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debezium-ui
+spec:
+  selector:
+    app: debezium-ui
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+  type: NodePort
