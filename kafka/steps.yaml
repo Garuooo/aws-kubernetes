@@ -16,7 +16,7 @@ kubectl get secret dockerhub-secret -n kafka  --output=yaml
 kubectl apply -f kafka-connect.yaml -n kafka 
 
 
-kubectl exec -it mysql-6ff7c76cbc-trp8x -n kafka -- /bin/bash 
+kubectl exec -it mysql-replica-8d8858b47-dvzbw -n kafka -- /bin/bash 
 mysql -u mysqluser -p
 mysqlpw
 update inventorycustomers set first_name="Sally Marie" where id=1001;
