@@ -34,35 +34,52 @@ mysqlpw
 USE mydatabase;
 
 
+
+
 CREATE TABLE customer_info (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
-    credit_card VARCHAR(19) NOT NULL
+    credit_card VARCHAR(19) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    phone_number VARCHAR(15)
 );
 
 CREATE TABLE subscriber_data (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
-    credit_card VARCHAR(19) NOT NULL
+    credit_card VARCHAR(19) NOT NULL,
+    subscription_date DATE,
+    renewal_date DATE,
+    status VARCHAR(50)
 );
 
 CREATE TABLE client_records (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
-    credit_card VARCHAR(19) NOT NULL
+    credit_card VARCHAR(19) NOT NULL,
+    address VARCHAR(255),
+    city VARCHAR(100),
+    country VARCHAR(100)
 );
 
 -- Insert data into customer_info
-INSERT INTO customer_info (email, credit_card) VALUES ('customer1@example.com', '1234-5678-9101-1121');
-INSERT INTO customer_info (email, credit_card) VALUES ('customer2@example.com', '2345-6789-1011-1213');
+INSERT INTO customer_info (email, credit_card, first_name, last_name, phone_number) 
+VALUES ('customer1@example.com', '1234-5678-9101-1121', 'John', 'Doe', '123-456-7890');
+INSERT INTO customer_info (email, credit_card, first_name, last_name, phone_number) 
+VALUES ('customer2@example.com', '2345-6789-1011-1213', 'Jane', 'Smith', '234-567-8901');
 
 -- Insert data into subscriber_data
-INSERT INTO subscriber_data (email, credit_card) VALUES ('subscriber1@example.com', '3456-7890-1121-3141');
-INSERT INTO subscriber_data (email, credit_card) VALUES ('subscriber2@example.com', '4567-8901-1213-4151');
+INSERT INTO subscriber_data (email, credit_card, subscription_date, renewal_date, status) 
+VALUES ('subscriber1@example.com', '3456-7890-1121-3141', '2023-01-01', '2024-01-01', 'active');
+INSERT INTO subscriber_data (email, credit_card, subscription_date, renewal_date, status) 
+VALUES ('subscriber2@example.com', '4567-8901-1213-4151', '2023-02-01', '2024-02-01', 'inactive');
 
 -- Insert data into client_records
-INSERT INTO client_records (email, credit_card) VALUES ('client1@example.com', '5678-9012-1314-5161');
-INSERT INTO client_records (email, credit_card) VALUES ('client2@example.com', '6789-0123-1415-6171');
+INSERT INTO client_records (email, credit_card, address, city, country) 
+VALUES ('client1@example.com', '5678-9012-1314-5161', '123 Main St', 'Anytown', 'USA');
+INSERT INTO client_records (email, credit_card, address, city, country) 
+VALUES ('client2@example.com', '6789-0123-1415-6171', '456 Elm St', 'Othertown', 'Canada');
 
 
 -- Delete data from customer_info
