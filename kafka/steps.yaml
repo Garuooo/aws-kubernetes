@@ -16,7 +16,16 @@ kubectl get secret dockerhub-secret -n kafka  --output=yaml
 kubectl apply -f kafka-connect.yaml -n kafka 
 
 
-kubectl exec -it mysql-replica-8d8858b47-dvzbw -n kafka -- /bin/bash 
-mysql -u mysqluser -p
+kubectl exec -it mysql-ephemeral-f744f8758-g9wxw -n kafka -- /bin/bash 
+mysql -p
 mysqlpw
-update inventorycustomers set first_name="Sally Marie" where id=1001;
+
+USE mydatabase;
+CREATE TABLE employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    position VARCHAR(100)
+);
+INSERT INTO employees (name, position) VALUES ('Alice Smith', 'Software Engineer');
+INSERT INTO employees (name, position) VALUES ('Bob Johnson', 'Data Scientist');
+INSERT INTO employees (name, position) VALUES ('Carol Williams', 'Product Manager');
