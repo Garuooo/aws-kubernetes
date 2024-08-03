@@ -4,6 +4,15 @@ kubectl get pod -n kafka --watch
 kubectl apply -f kafka.yaml -n kafka 
 kubectl logs deployment/strimzi-cluster-operator -n kafka -f
 
+##install helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+## install prometheus operator
+kubectl create namespace monitoring
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring
+kubectl get pods -n monitoring
 
 docker login
 cat ~/.docker/config.json
