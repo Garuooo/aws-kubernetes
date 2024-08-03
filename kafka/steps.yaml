@@ -9,11 +9,11 @@ docker login
 cat ~/.docker/config.json
 kubectl create secret generic dockerhub-secret \
     --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-    --type=kubernetes.io/dockerconfigjson -n kafka # not sure about namespace
+    --type=kubernetes.io/dockerconfigjson -n kafka 
 
 
-kubectl get secret dockerhub-secret --output=yaml
-kubectl apply -f kafka-connect.yaml
+kubectl get secret dockerhub-secret -n kafka  --output=yaml
+kubectl apply -f kafka-connect.yaml -n kafka 
 
 
 
