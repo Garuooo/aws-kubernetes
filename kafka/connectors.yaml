@@ -100,7 +100,7 @@ spec:
   tasksMax: 1
   config:
     name: mysql-sink-connector
-    connector.class: io.confluent.connect.jdbc.JdbcSinkConnector
+    connector.class: io.debezium.connector.jdbc.JdbcSinkConnector
 
     # Database connection configuration
     connection.url: jdbc:mysql://mysql-replica:3306/mydatabase
