@@ -47,6 +47,10 @@ spec:
     database.dbname: mydatabase
     database.include.list: mydatabase
 
+    # exclude tables and columns
+    table.exclude.list: mydatabase.customer_info
+    column.exclude.list: mydatabase.subscriber_data.email,mydatabase.subscriber_data.credit_card
+
     # Kafka connection configuration
     schema.history.internal.kafka.bootstrap.servers:  my-cluster-kafka-bootstrap:9092
     schema.history.internal.kafka.topic: schemahistory.history
@@ -88,10 +92,6 @@ spec:
     predicates.isTombstone.type: org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     transforms.x.negate: true
     transforms.x.predicate: isTombstone
-
-    # exclude tables and columns
-    table.exclude.list: mydatabase.customer_info
-    column.exclude.list: mydatabase.subscriber_data.email,mydatabase.subscriber_data.credit_card
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
