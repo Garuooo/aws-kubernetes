@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-ephemeral
+  name: mysql-master
   labels:
-    app: mysql-ephemeral
+    app: mysql-master
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql-ephemeral
+      app: mysql-master
   template:
     metadata:
       labels:
-        app: mysql-ephemeral
+        app: mysql-master
     spec:
       containers:
       - name: mysql
@@ -32,10 +32,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-ephemeral
+  name: mysql-master
 spec:
   selector:
-    app: mysql-ephemeral
+    app: mysql-master
   ports:
     - protocol: TCP
       port: 3306
@@ -101,11 +101,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-ephemeral-nodeport
+  name: mysql-master-nodeport
 spec:
   type: NodePort
   selector:
-    app: mysql-ephemeral
+    app: mysql-master
   ports:
     - protocol: TCP
       port: 3306
