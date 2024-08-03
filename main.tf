@@ -241,7 +241,7 @@ resource "aws_instance" "kubeadm_demo_control_plane" {
   ]
   root_block_device {
     volume_type = "gp2"
-    volume_size = 120
+    volume_size = 30
   }
 
   tags = {
@@ -258,7 +258,7 @@ resource "aws_instance" "kubeadm_demo_control_plane" {
 resource "aws_instance" "kubeadm_demo_worker_nodes" {
   count = var.worker_nodes_count
   ami = var.ubuntu_ami
-  instance_type = "t2.micro"
+  instance_type = "t2.medium"
   key_name = aws_key_pair.kubeadm_demo_key_pair.key_name
   associate_public_ip_address = true
   security_groups = [
@@ -268,7 +268,7 @@ resource "aws_instance" "kubeadm_demo_worker_nodes" {
   ]
   root_block_device {
     volume_type = "gp2"
-    volume_size = 120
+    volume_size = 30
   }
 
   tags = {
