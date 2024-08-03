@@ -10,7 +10,7 @@ spec:
   config:
     name: mysql-source-connector
     tasks.max: 1
-    database.hostname: mysql-ephemeral
+    database.hostname: mysql-master
     database.port: 3306
     database.user: root
     database.password: rootpw
@@ -38,7 +38,7 @@ spec:
     connector.class: io.debezium.connector.mysql.MySqlConnector
 
     # Database connection configuration
-    database.hostname: mysql-ephemeral
+    database.hostname: mysql-master
     database.port: 3306
     database.user: root
     database.password: rootpw
