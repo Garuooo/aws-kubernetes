@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: debezium-ui
-        image: quay.io/debezium/debezium-ui:{debezium-version}
+        image: quay.io/debezium/debezium-ui:latest
         env:
         - name: KAFKA_CONNECT_URIS
           value: "http://connect:8083"
