@@ -33,5 +33,5 @@ spec:
       - name: kafka-sink-mysql-connector
         artifacts:
           - type: zip
-            url: https://d2p6pa21dvn84.cloudfront.net/api/plugins/confluentinc/kafka-connect-jdbc/versions/10.7.6/confluentinc-kafka-connect-jdbc-10.7.6.zip
+            url: https://d2p6pa21dvn84.cloudfront.net/api/plugins/confluentinc/kafka-connect-jdbc/versions/10.7.4/confluentinc-kafka-connect-jdbc-10.7.4.zip
 # # building custom kafka connect https://anhcodes.dev/blog/deploy-debezium-aks/#6-deploy-kafka-connect-cluster
