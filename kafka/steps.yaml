@@ -1,0 +1,131 @@
+kubectl create namespace kafka
+kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka
+kubectl get pod -n kafka --watch
+kubectl apply -f kafka.yaml n kafka 
+kubectl logs deployment/strimzi-cluster-operator -n kafka -f
+
+
+docker login
+cat ~/.docker/config.json
+kubectl create secret generic dockerhub-secret \
+    --from-file=.dockerconfigjson=$HOME/.docker/config.json \
+    --type=kubernetes.io/dockerconfigjson -n kafka # not sure about namespace
+
+
+kubectl get secret dockerhub-secret --output=yaml
+kubectl apply -f kafka-connect.yaml
+
+
+
+
+
+cat << EOF | kubectl create -n kafka -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: quay.io/debezium/example-mysql:2.7
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: debezium
+        - name: MYSQL_USER
+          value: mysqluser
+        - name: MYSQL_PASSWORD
+          value: mysqlpw
+        ports:
+        - containerPort: 3306
+          name: mysql
+EOF
+
+
+
+cat << EOF | kubectl create -n kafka -f -
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: debezium-connector-mysql
+  labels:
+    strimzi.io/cluster: my-connect-cluster
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector
+  tasksMax: 1
+  config:
+    tasks.max: 1
+    database.hostname: mysql
+    database.port: 3306
+    database.user: mysqluser
+    database.password: mysqlpw
+    database.server.id: 184054
+    topic.prefix: mysql
+    database.include.list: inventory
+    schema.history.internal.kafka.bootstrap.servers: my-cluster-kafka-bootstrap:9092
+    schema.history.internal.kafka.topic: schema-changes.inventory
+EOF
+
+
+kubectl exec -it mysql-6ff7c76cbc-trp8x -n kafka -- /bin/bash 
+mysql -u mysqluser -p
+mysqlpw
+update inventorycustomers set first_name="Sally Marie" where id=1001;
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium-ui
+  template:
+    metadata:
+      labels:
+        app: debezium-ui
+    spec:
+      containers:
+      - name: debezium-ui
+        image: quay.io/debezium/debezium-ui:{debezium-version}
+        env:
+        - name: KAFKA_CONNECT_URIS
+          value: "http://connect:8083"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debezium-ui
+spec:
+  selector:
+    app: debezium-ui
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+  type: NodePort
