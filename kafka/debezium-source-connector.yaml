@@ -1,0 +1,25 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: debezium-connector-mysql
+  labels:
+    strimzi.io/cluster: my-connect-cluster
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector
+  tasksMax: 1
+  config:
+    name: mysql-source-connector
+    tasks.max: 1
+    database.hostname: mysql-ephemeral
+    database.port: 3306
+    database.user: root
+    database.password: rootpw
+    database.server.id: 1
+    database.dbname: mydatabase
+    topic.prefix: prefixtopic
+    snapshot.mode: initial
+    schema.history.internal.kafka.topic: schemahistory.history 
+    database.include.list: mydatabase
+    schema.history.internal.kafka.bootstrap.servers: my-cluster-kafka-bootstrap:9092
+    schema.history.internal.kafka.topic: history.history
+    quote.identifiers: true
