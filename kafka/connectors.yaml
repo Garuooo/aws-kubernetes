@@ -61,7 +61,7 @@ spec:
     transforms.dropPrefix.regex: history.history.mydatabase.(.*)
     transforms.dropPrefix.replacement: replica_$1
     transforms.maskCC.type: org.apache.kafka.connect.transforms.MaskField$Value
-    transforms.maskCC.fields: city,country,email
+    transforms.maskCC.fields: city,country,email,credit_card
     transforms.maskCC.replacement: XXXX-XXXX-XXXX-XXXX
 
     # Error handling configuration
@@ -88,6 +88,10 @@ spec:
     predicates.isTombstone.type: org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     transforms.x.negate: true
     transforms.x.predicate: isTombstone
+
+    # exclude tables and columns
+    table.exclude.list: mydatabase.customer_info
+    column.exclude.list: mydatabase.subscriber_data.email,mydatabase.subscriber_data.credit_card
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
