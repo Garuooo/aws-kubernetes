@@ -66,14 +66,6 @@ spec:
   image: quay.io/prometheus/prometheus:v2.33.4
   podMonitorNamespaceSelector: {}
   podMonitorSelector: {}
-  resources:
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-
 ---
 apiVersion: v1
 kind: Service
