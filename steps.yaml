@@ -46,8 +46,9 @@ USE mydatabase;
 
 
 
-
-CREATE TABLE customer_info (
+## tables excluded = customer_info
+## columns excluded = mydatabase.subscriber_data.email,mydatabase.subscriber_data.credit_card
+CREATE TABLE customer_info (           
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     credit_card VARCHAR(19) NOT NULL,
