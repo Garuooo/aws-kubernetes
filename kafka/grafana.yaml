@@ -24,6 +24,13 @@ spec:
         - name: grafana
           containerPort: 3000
           protocol: TCP
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
         volumeMounts:
         - name: grafana-data
           mountPath: /var/lib/grafana
