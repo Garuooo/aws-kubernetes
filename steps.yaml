@@ -81,6 +81,21 @@ CREATE TABLE client_records (
     country VARCHAR(100)
 );
 
+
+-- Initialize customer_info with an initial user
+INSERT INTO customer_info (email, credit_card, first_name, last_name, phone_number) 
+VALUES ('initial_user@example.com', '0000-0000-0000-0000', 'Initial', 'User', '000-000-0000');
+
+-- Initialize subscriber_data with an initial user
+INSERT INTO subscriber_data (email, credit_card, subscription_date, renewal_date, status) 
+VALUES ('initial_user@example.com', '0000-0000-0000-0000', '2023-01-01', '2024-01-01', 'active');
+
+-- Initialize client_records with an initial user
+INSERT INTO client_records (email, credit_card, address, city, country) 
+VALUES ('initial_user@example.com', '0000-0000-0000-0000', '123 Initial St', 'Initial City', 'Initial Country');
+
+
+
 -- Insert data into customer_info
 INSERT INTO customer_info (email, credit_card, first_name, last_name, phone_number) 
 VALUES ('customer1@example.com', '1234-5678-9101-1121', 'John', 'Doe', '123-456-7890');
