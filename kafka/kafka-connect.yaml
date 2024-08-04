@@ -6,7 +6,7 @@ metadata:
     strimzi.io/use-connector-resources: "true"
 spec:
   version: 3.7.1
-  replicas: 2
+  replicas: 3
   bootstrapServers: my-cluster-kafka-bootstrap:9092
   config:
     group.id: connect-cluster
