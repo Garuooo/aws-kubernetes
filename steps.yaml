@@ -15,15 +15,7 @@ kubectl get pod -n kafka --watch
 kubectl apply -f kafka.yaml -n kafka 
 kubectl logs deployment/strimzi-cluster-operator -n kafka -f
 
-##install helm
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-## install prometheus operator
-kubectl create namespace monitoring
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring
-kubectl get pods -n monitoring
+kubectl apply -f kafkaui.yaml -n kafka 
 
 docker login
 cat ~/.docker/config.json
@@ -35,6 +27,20 @@ kubectl create secret generic dockerhub-secret \
 kubectl get secret dockerhub-secret -n kafka  --output=yaml
 kubectl apply -f kafka-connect.yaml -n kafka 
 
+kubectl apply -f mysql.yaml -n kafka 
+kubectl apply -f connectors.yaml -n kafka 
+
+##install helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+## install prometheus operator
+kubectl create namespace monitoring
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring
+kubectl get pods -n monitoring
+kubectl apply -f grafana.yaml -n monitoring 
+kubectl apply -f prometheus.yaml -n monitoring 
 
 kubectl exec -it mysql-master-f744f8758-g9wxw -n kafka -- /bin/bash 
 kubectl exec -it mysql-replica-8d8858b47-8rpnc -n kafka -- /bin/bash 
