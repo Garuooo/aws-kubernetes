@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-master
+  labels:
+    app: mysql-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-master
+  template:
+    metadata:
+      labels:
+        app: mysql-master
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0.39
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rootpw"
+        - name: MYSQL_DATABASE
+          value: "mydatabase"
+        - name: MYSQL_USER
+          value: "mysqluser"
+        - name: MYSQL_PASSWORD
+          value: "mysqlpw"
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-master
+spec:
+  type: LoadBalancer
+  selector:
+    app: mysql-master
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-replica
+  labels:
+    app: mysql-replica
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-replica
+  template:
+    metadata:
+      labels:
+        app: mysql-replica
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0.39
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rootpw"
+        - name: MYSQL_DATABASE
+          value: "mydatabase"
+        - name: MYSQL_USER
+          value: "mysqluser"
+        - name: MYSQL_PASSWORD
+          value: "mysqlpw"
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-replica
+spec:
+  type: LoadBalancer
+  selector:
+    app: mysql-replica
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
