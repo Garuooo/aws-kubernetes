@@ -14,7 +14,7 @@ kubectl create namespace kafka
 kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka
 kubectl get pod -n kafka --watch
 git clone https://github.com/Garuooo/aws-kubernetes.git
-cd aws-kubernetes/kafka
+cd aws-kubernetes/kafka-on-eks
 kubectl apply -f kafka.yaml -n kafka 
 kubectl logs deployment/strimzi-cluster-operator -n kafka -f
 
