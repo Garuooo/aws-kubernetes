@@ -1,4 +1,3 @@
-#http://prometheus-service.monitoring.svc.cluster.local:9090
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -63,7 +62,7 @@ spec:
       app: strimzi
   serviceMonitorSelector: {}
   enableAdminAPI: false
-  image: quay.io/prometheus/prometheus:v2.33.4
+  image: quay.io/prometheus/prometheus:latest
   podMonitorNamespaceSelector: {}
   podMonitorSelector: {}
 ---
