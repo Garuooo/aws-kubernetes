@@ -1,5 +1,5 @@
 
-ansible-galaxy collection install cloud.terraform chmod 
+ansible-galaxy collection install cloud.terraform 
 chmod 600 private-key.pem
 ansible-playbook -i inventory.yml playbook.yml
 
