@@ -77,7 +77,7 @@ spec:
   type: LoadBalancer
   ports:
     - name: web
-      port: 9090
+      port: 80
       targetPort: 9090
   selector:
     app.kubernetes.io/name: prometheus
