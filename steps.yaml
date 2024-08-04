@@ -32,7 +32,7 @@ kubectl apply -f kafka-connect.yaml -n kafka
 kubectl apply -f mysql.yaml -n kafka 
 kubectl get pod -n kafka --watch
 kubectl apply -f connectors.yaml -n kafka 
-
+kubectl apply -f kafka-connect-api-external.yaml -n kafka
 ##install helm
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
