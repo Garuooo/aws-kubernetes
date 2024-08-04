@@ -65,7 +65,7 @@ spec:
     transforms.dropPrefix.regex: history.history.mydatabase.(.*)
     transforms.dropPrefix.replacement: replica_$1
     transforms.maskCC.type: org.apache.kafka.connect.transforms.MaskField$Value
-    transforms.maskCC.fields: city,country,email,credit_card
+    transforms.maskCC.fields: email,credit_card
     transforms.maskCC.replacement: XXXX-XXXX-XXXX-XXXX
 
     # Error handling configuration
