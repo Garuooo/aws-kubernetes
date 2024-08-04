@@ -29,8 +29,9 @@ kubectl create secret generic dockerhub-secret \
 
 kubectl get secret dockerhub-secret -n kafka  --output=yaml
 kubectl apply -f kafka-connect.yaml -n kafka 
-
 kubectl apply -f mysql.yaml -n kafka 
+kubectl get pod -n kafka --watch
+
 kubectl apply -f connectors.yaml -n kafka 
 
 ##install helm
